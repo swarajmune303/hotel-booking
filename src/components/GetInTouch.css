@@ -1,0 +1,102 @@
+.contact-section {
+  background-color: var(--bg-color);
+  padding-bottom: 6rem;
+}
+
+.contact-content {
+  display: flex;
+  gap: 4rem;
+}
+
+.contact-details {
+  flex: 1;
+}
+
+.contact-intro {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+.contact-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-method-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+.method-icon-simple {
+  color: var(--secondary);
+}
+
+.locate-title {
+  text-align: left;
+  margin-bottom: 2.5rem;
+  font-size: 2.5rem;
+}
+
+.get-in-touch-title {
+  font-family: var(--font-serif);
+  color: var(--secondary);
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.map-container {
+  flex: 1.2;
+}
+
+.map-placeholder {
+  background-color: #f8fcfd;
+  border: 1px solid #eef2f5;
+  border-radius: 8px;
+  height: 100%;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.map-icon {
+  color: var(--primary);
+  stroke-width: 2.5px;
+}
+
+.map-placeholder h4 {
+  font-family: var(--font-serif);
+  color: var(--secondary);
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.map-placeholder p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+@media (max-width: 992px) {
+  .contact-content {
+    flex-direction: column;
+  }
+  .locate-title {
+    text-align: center;
+  }
+  .map-placeholder {
+    min-height: 300px;
+  }
+}

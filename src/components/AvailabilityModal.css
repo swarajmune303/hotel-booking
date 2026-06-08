@@ -1,0 +1,145 @@
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background-color: var(--bg-white);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.close-btn {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: var(--error);
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--error);
+  padding: 2rem 0;
+  gap: 1rem;
+}
+
+.success-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2a9d8f;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.table-header {
+  display: flex;
+  padding-bottom: 0.8rem;
+  border-bottom: 2px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.room-row {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 0;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s;
+}
+
+.room-row:last-child {
+  border-bottom: none;
+}
+
+.room-row.sold-out {
+  opacity: 0.6;
+}
+
+.col-room {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.col-stat {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.table-header .col-stat {
+  font-size: 0.85rem;
+}
+
+.booked-stat {
+  color: var(--text-muted);
+}
+
+.available-stat {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.badge-sold-out {
+  font-size: 0.75rem;
+  background-color: var(--error);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: max-content;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

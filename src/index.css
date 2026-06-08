@@ -1,0 +1,141 @@
+:root {
+  --primary: #0077B6;      /* Azure blue */
+  --primary-dark: #005a8a;
+  --primary-light: #48CAE4;
+  --secondary: #03045E;    /* Deep navy */
+  --accent: #00B4D8;
+  --text-dark: #1b263b;
+  --text-muted: #5c677d;
+  --bg-color: #f8f9fa;
+  --bg-white: #ffffff;
+  --border-color: #e0e1dd;
+  --error: #e63946;
+  
+  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-dark);
+  background-color: var(--bg-color);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary);
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  border: none;
+  background: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-outline {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-outline:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.section {
+  padding: 4rem 2rem;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--secondary);
+}
+
+/* Layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar-container {
+  width: 380px;
+  background-color: var(--bg-white);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  border-right: 1px solid var(--border-color);
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.main-content {
+  flex: 1;
+  overflow-x: hidden;
+}
+
+@media (max-width: 992px) {
+  .app-layout {
+    flex-direction: column;
+  }
+  .sidebar-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+}

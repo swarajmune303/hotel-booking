@@ -1,0 +1,104 @@
+.accommodations-section {
+  background-color: var(--bg-color);
+}
+
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.room-card {
+  display: flex;
+  background-color: var(--bg-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.room-image {
+  flex: 0 0 45%;
+  background-size: cover;
+  background-position: center;
+  min-height: 300px;
+}
+
+.room-details {
+  flex: 1;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.room-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.room-desc {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  flex: 1;
+}
+
+.room-guests {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.room-guests .icon {
+  color: var(--text-muted);
+}
+
+.room-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.room-price-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.price-value {
+  font-size: 2.2rem;
+  color: var(--primary);
+  font-family: var(--font-serif);
+}
+
+@media (max-width: 768px) {
+  .room-card {
+    flex-direction: column;
+  }
+  .room-image {
+    min-height: 250px;
+  }
+  .room-details {
+    padding: 1.5rem;
+  }
+}
+
+.room-amenities { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.amenity-pill { background-color: #f0f8ff; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+.availability-info-box { background-color: #fff9e6; border: 1px solid #ffeeba; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+.availability-warning { display: flex; align-items: center; gap: 0.5rem; color: #b58105; font-weight: 600; margin-bottom: 0.8rem; }
+.warning-icon { color: #d39e00; }
+.availability-breakdown { display: flex; gap: 1.5rem; font-size: 0.9rem; }
+.avail-stat { display: flex; flex-direction: column; }
+.avail-label { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+.avail-val { font-weight: 600; font-size: 1.1rem; }
+.text-primary { color: var(--primary); }
