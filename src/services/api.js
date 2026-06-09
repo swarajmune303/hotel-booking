@@ -17,28 +17,39 @@ export const fetchRoomAvailability = async (checkIn, checkOut) => {
   }
 };
 
-let facilitiesCache = null;
-
 export const fetchRoomFacilities = async () => {
-  if (facilitiesCache) {
-    return Promise.resolve(facilitiesCache);
+
+  try {
+    const roomTypes = await fetchRoomTypes();
+    if (Array.isArray(roomTypes) && roomTypes.length > 0) {
+      const map = {};
+      roomTypes.forEach(rt => {
+        let parsed = [];
+        if (rt.amenities) {
+          try {
+            parsed = JSON.parse(rt.amenities);
+            if (!Array.isArray(parsed)) {
+              parsed = [String(rt.amenities)];
+            }
+          } catch (e) {
+            parsed = rt.amenities.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        }
+        map[rt.name] = parsed;
+      });
+      return map;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch dynamic facilities, falling back to default.", err);
   }
 
-  const delay = Math.floor(Math.random() * 500) + 500; // Faster response
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const data = {
-        'Deluxe Room': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Air Conditioning', 'TV', 'Balcony'],
-        'Superior Room': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Breakfast Included'],
-        'Junior Suite': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Spa and Wellness Center', 'Fitness Center', 'Restaurant & Bar', 'Room Service (24/7)', 'Airport Shuttle', 'Valet Parking', 'Daily Housekeeping', 'Concierge Services'],
-        'Presidential Suite': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Spa and Wellness Center', 'Fitness Center', 'Restaurant & Bar', 'Room Service (24/7)', 'Airport Shuttle', 'Valet Parking', 'Daily Housekeeping', 'Concierge Services', 'Private Dining', 'VIP Service']
-      };
-      
-      facilitiesCache = data;
-      resolve(data);
-    }, delay);
-  });
+  const defaultData = {
+    'Deluxe Room': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Air Conditioning', 'TV', 'Balcony'],
+    'Superior Room': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Air Conditioning', 'Mini Bar', 'Balcony', 'Breakfast Included'],
+    'Junior Suite': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Spa and Wellness Center', 'Fitness Center', 'Restaurant & Bar', 'Room Service (24/7)', 'Airport Shuttle', 'Valet Parking', 'Daily Housekeeping', 'Concierge Services'],
+    'Presidential Suite': ['Free High-Speed Wi-Fi', 'Swimming Pool', 'Spa and Wellness Center', 'Fitness Center', 'Restaurant & Bar', 'Room Service (24/7)', 'Airport Shuttle', 'Valet Parking', 'Daily Housekeeping', 'Concierge Services', 'Private Dining', 'VIP Service']
+  };
+  return defaultData;
 };
 
 // --- BOOKINGS API ---
@@ -140,10 +151,9 @@ export const updateBookingStatus = async (bookingId, newStatus) => {
   });
 };
 
-export const fetchBookingStatus = async (bookingId, email) => {
-  const API_BASE = '/api';
+export const fetchBookingStatus = async (bookingId, phone) => {
   try {
-    const res = await fetch(`${API_BASE}/public/bookings/status?id=${bookingId}&email=${encodeURIComponent(email)}`);
+    const res = await fetch(`/api/public/bookings/status?id=${bookingId}&phone=${encodeURIComponent(phone)}`);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'Failed to fetch booking details.');
@@ -158,7 +168,7 @@ export const fetchBookingStatus = async (bookingId, email) => {
 export const fetchAllPromotions = async () => {
   const API_BASE = '/api';
   try {
-    const res = await fetch(`${API_BASE}/public/promotions`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/public/promotions?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) {
       throw new Error('Failed to fetch promotions from the server.');
     }
@@ -185,5 +195,80 @@ export const validatePromoCode = async (code, checkIn, checkOut) => {
   } catch (err) {
     console.error("Validate promo code error:", err);
     throw err;
+  }
+};
+
+// --- SITE MANAGER API ---
+
+export const fetchSiteContent = async (section) => {
+  const API_BASE = '/api';
+  try {
+    const res = await fetch(`${API_BASE}/public/site-manager/content/${section}?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to fetch content for ${section}`);
+    return await res.json();
+  } catch (err) {
+    console.error(`Fetch content error for ${section}:`, err);
+    return null;
+  }
+};
+
+export const fetchSiteGallery = async (sliderOnly = false) => {
+  const API_BASE = '/api';
+  try {
+    const url = sliderOnly ? `${API_BASE}/public/site/gallery?slider=1&t=${Date.now()}` : `${API_BASE}/public/site/gallery?t=${Date.now()}`;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch gallery');
+    return await res.json();
+  } catch (err) {
+    console.error("Fetch gallery error:", err);
+    return [];
+  }
+};
+
+export const fetchRoomTypes = async () => {
+  const API_BASE = '/api';
+  try {
+    const res = await fetch(`${API_BASE}/public/room-types?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Failed to fetch room types');
+    return await res.json();
+  } catch (err) {
+    console.error("Fetch room types error:", err);
+    return [];
+  }
+};
+
+export const sendOtp = async (phone) => {
+  try {
+    const res = await fetch('/api/public/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to send OTP.');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("sendOtp error:", error);
+    throw error;
+  }
+};
+
+export const verifyOtp = async (phone, otp) => {
+  try {
+    const res = await fetch('/api/public/otp/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, otp })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Invalid OTP.');
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("verifyOtp error:", error);
+    throw error;
   }
 };

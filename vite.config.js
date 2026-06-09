@@ -9,6 +9,11 @@ export default defineConfig({
       '/api': {
         target: 'https://channel.vertosync.com',
         changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
       }
     }
   }

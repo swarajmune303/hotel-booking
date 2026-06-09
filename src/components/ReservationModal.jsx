@@ -1,27 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Loader2, Tag, XCircle } from 'lucide-react';
-import { createBooking, validatePromoCode } from '../services/api';
+  import { createBooking, validatePromoCode, sendOtp, verifyOtp } from '../services/api';
 import './ReservationModal.css';
 
 const ReservationModal = ({ isOpen, onClose, room, bookingDates, facilities = [], appliedPromo }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', otp: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [otpStep, setOtpStep] = useState(0); // 0: Enter Phone, 1: Verify OTP, 2: Final Form
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       setSuccess(false);
       setErrorMsg('');
-      setFormData({ name: '', email: '', phone: '' });
+      setFormData({ name: '', email: '', phone: '', otp: '' });
+      setOtpStep(0);
+      setCooldown(0);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   if (!isOpen || !room) return null;
 
   const { checkIn, checkOut } = bookingDates || {};
 
 
+
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    if (!formData.phone || formData.phone.length < 10) {
+      setErrorMsg("Please enter a valid mobile number.");
+      return;
+    }
+    setIsSubmitting(true);
+    setErrorMsg('');
+    try {
+      await sendOtp(formData.phone);
+      setOtpStep(1);
+      setCooldown(60);
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to send OTP. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!formData.otp) {
+      setErrorMsg("Please enter the OTP.");
+      return;
+    }
+    setIsSubmitting(true);
+    setErrorMsg('');
+    try {
+      await verifyOtp(formData.phone, formData.otp);
+      setOtpStep(2);
+      setErrorMsg('');
+    } catch (err) {
+      setErrorMsg(err.message || "Invalid OTP. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -58,7 +108,7 @@ const ReservationModal = ({ isOpen, onClose, room, bookingDates, facilities = []
     const bookingData = {
       guestName: formData.name,
       email: formData.email,
-      mobile: formData.phone,
+      guestPhone: formData.phone,
       roomType: room.title,
       checkIn: checkIn,
       checkOut: checkOut,
@@ -99,24 +149,65 @@ const ReservationModal = ({ isOpen, onClose, room, bookingDates, facilities = []
             <>
               <div className="res-form-section">
                 <h3>Guest Details</h3>
-                <form className="res-guest-form" onSubmit={handleSubmit}>
-                  <div className="form-group">
-                    <label>Full Name</label>
-                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John Doe" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Email Address</label>
-                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="john@example.com" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+1 (555) 000-0000" required />
-                  </div>
-                  {errorMsg && <div className="res-error-msg" style={{color: '#dc3545', fontSize: '0.85rem', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{errorMsg}</div>}
-                  <button type="submit" className="btn-primary btn-full-width" disabled={isSubmitting}>
-                    {isSubmitting ? <><Loader2 size={18} className="spin-anim" style={{display: 'inline', marginRight: '8px'}}/> Processing...</> : 'Confirm Booking'}
-                  </button>
-                </form>
+                {otpStep === 0 && (
+                  <form className="res-guest-form" onSubmit={handleSendOtp}>
+                    <div className="form-group">
+                      <label>Mobile Number for Verification</label>
+                      <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="e.g. 9876543210" required />
+                      <small style={{color: '#666', marginTop: '4px', display: 'block'}}>We need to verify your number before proceeding.</small>
+                    </div>
+                    {errorMsg && <div className="res-error-msg" style={{color: '#dc3545', fontSize: '0.85rem', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{errorMsg}</div>}
+                    <button type="submit" className="btn-primary btn-full-width" disabled={isSubmitting}>
+                      {isSubmitting ? <><Loader2 size={18} className="spin-anim" style={{display: 'inline', marginRight: '8px'}}/> Sending OTP...</> : 'Send OTP'}
+                    </button>
+                  </form>
+                )}
+
+                {otpStep === 1 && (
+                  <form className="res-guest-form" onSubmit={handleVerifyOtp}>
+                    <div className="form-group">
+                      <label>Enter OTP</label>
+                      <input type="text" value={formData.otp} onChange={e => setFormData({...formData, otp: e.target.value})} placeholder="4-digit OTP" required maxLength={6} />
+                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px'}}>
+                        <small style={{color: '#666'}}>Sent to {formData.phone}</small>
+                        <button type="button" onClick={handleSendOtp} disabled={cooldown > 0 || isSubmitting} style={{background: 'none', border: 'none', color: cooldown > 0 ? '#aaa' : '#0056b3', cursor: cooldown > 0 ? 'not-allowed' : 'pointer', fontSize: '0.85rem', textDecoration: cooldown > 0 ? 'none' : 'underline'}}>
+                          {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
+                        </button>
+                      </div>
+                    </div>
+                    {errorMsg && <div className="res-error-msg" style={{color: '#dc3545', fontSize: '0.85rem', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{errorMsg}</div>}
+                    <button type="submit" className="btn-primary btn-full-width" disabled={isSubmitting}>
+                      {isSubmitting ? <><Loader2 size={18} className="spin-anim" style={{display: 'inline', marginRight: '8px'}}/> Verifying...</> : 'Verify OTP'}
+                    </button>
+                    <button type="button" className="btn-secondary btn-full-width" onClick={() => setOtpStep(0)} style={{marginTop: '10px'}} disabled={isSubmitting}>
+                      Change Mobile Number
+                    </button>
+                  </form>
+                )}
+
+                {otpStep === 2 && (
+                  <form className="res-guest-form" onSubmit={handleSubmit}>
+                    <div className="form-group">
+                      <label>Mobile Number</label>
+                      <input type="tel" value={formData.phone} disabled style={{backgroundColor: '#f1f1f1', color: '#555'}} />
+                      <span style={{color: '#28a745', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px'}}>
+                        <CheckCircle size={14} /> Verified
+                      </span>
+                    </div>
+                    <div className="form-group">
+                      <label>Full Name</label>
+                      <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="John Doe" required />
+                    </div>
+                    <div className="form-group">
+                      <label>Email Address</label>
+                      <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="john@example.com" required />
+                    </div>
+                    {errorMsg && <div className="res-error-msg" style={{color: '#dc3545', fontSize: '0.85rem', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f8d7da', borderRadius: '4px'}}>{errorMsg}</div>}
+                    <button type="submit" className="btn-primary btn-full-width" disabled={isSubmitting}>
+                      {isSubmitting ? <><Loader2 size={18} className="spin-anim" style={{display: 'inline', marginRight: '8px'}}/> Processing...</> : 'Confirm Booking'}
+                    </button>
+                  </form>
+                )}
               </div>
 
               <div className="res-summary-section">
@@ -129,9 +220,11 @@ const ReservationModal = ({ isOpen, onClose, room, bookingDates, facilities = []
                 {checkIn ? checkIn : 'Select Check In'} to {checkOut ? checkOut : 'Select Check Out'}
               </p>
               
-              <div className="res-amenities">
+              <div className="res-amenities" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.5rem' }}>
                 {facilities.map((amenity, idx) => (
-                  <span key={idx} className="amenity-pill">{amenity}</span>
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.9rem', color: '#555' }}>
+                    <span style={{ color: '#28a745', fontWeight: 'bold' }}>✓</span> {amenity}
+                  </div>
                 ))}
               </div>
 

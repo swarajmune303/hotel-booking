@@ -8,23 +8,22 @@ const ChannelManager = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
-
   const loadBookings = async () => {
     setLoading(true);
     try {
       const data = await fetchBookings();
-      // Sort newest first based on bookingDate
       data.sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate));
       setBookings(data);
-    } catch (error) {
-      console.error("Failed to fetch bookings", error);
+    } catch (err) {
+      console.error("Failed to fetch bookings", err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadBookings();
+  }, []);
 
   const handleStatusUpdate = async (bookingId, status) => {
     try {

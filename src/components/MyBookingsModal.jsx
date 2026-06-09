@@ -5,7 +5,7 @@ import './ReservationModal.css';
 
 const MyBookingsModal = ({ isOpen, onClose }) => {
   const [bookingId, setBookingId] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [bookingDetails, setBookingDetails] = useState(null);
@@ -14,8 +14,8 @@ const MyBookingsModal = ({ isOpen, onClose }) => {
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!bookingId || !email) {
-      setErrorMsg("Please enter both Booking ID and Email Address.");
+    if (!bookingId || !phone) {
+      setErrorMsg("Please enter both Booking ID and Phone Number.");
       return;
     }
 
@@ -31,7 +31,7 @@ const MyBookingsModal = ({ isOpen, onClose }) => {
         throw new Error("Invalid Booking ID format. Please use the number from your confirmation.");
       }
 
-      const data = await fetchBookingStatus(numericId, email);
+      const data = await fetchBookingStatus(numericId, phone);
       setBookingDetails(data);
     } catch (err) {
       setErrorMsg(err.message || "Could not find a booking matching those details.");
@@ -66,7 +66,7 @@ const MyBookingsModal = ({ isOpen, onClose }) => {
 
   const handleClose = () => {
     setBookingId('');
-    setEmail('');
+    setPhone('');
     setBookingDetails(null);
     setErrorMsg('');
     onClose();
@@ -86,7 +86,7 @@ const MyBookingsModal = ({ isOpen, onClose }) => {
           {!bookingDetails ? (
             <div className="res-form-section" style={{ width: '100%' }}>
               <p style={{ marginBottom: '1.5rem', color: '#666' }}>
-                Enter your Booking ID and Email Address to view your reservation details.
+                Enter your Booking ID and Phone Number to view your reservation details.
               </p>
               <form className="res-guest-form" onSubmit={handleSearch}>
                 <div className="form-group">
@@ -100,12 +100,12 @@ const MyBookingsModal = ({ isOpen, onClose }) => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Email Address</label>
+                  <label>Phone Number</label>
                   <input 
-                    type="email" 
-                    value={email} 
-                    onChange={e => setEmail(e.target.value)} 
-                    placeholder="john@example.com" 
+                    type="tel" 
+                    value={phone} 
+                    onChange={e => setPhone(e.target.value)} 
+                    placeholder="e.g. 9876543210" 
                     required 
                   />
                 </div>

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import './GuestStories.css';
 import guestImage from '../assets/guest_testimonial.png';
+import { fetchSiteContent } from '../services/api';
 
 const GuestStories = () => {
-  const stories = [
+  const [stories, setStories] = useState([
     {
       id: 1,
       name: "Eleanor & Mark",
@@ -19,7 +20,21 @@ const GuestStories = () => {
       rating: 5,
       text: "From the artisan coffee in the morning to the fine dining at night, every detail is perfected. The private beach is pristine and serene. Highly recommend for anyone looking to truly disconnect and relax."
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadData = () => {
+      fetchSiteContent('reviews').then(data => {
+        if (mounted && data && Array.isArray(data) && data.length > 0) {
+          setStories(data);
+        }
+      });
+    };
+    loadData();
+    const interval = setInterval(loadData, 5000);
+    return () => { mounted = false; clearInterval(interval); };
+  }, []);
 
   return (
     <section className="section stories-section">
