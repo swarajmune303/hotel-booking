@@ -1,11 +1,10 @@
-const API_BASE = import.meta.env?.PROD ? 'https://channel.vertosync.com/api' : '/api';
-
 export const fetchRoomAvailability = async (checkIn, checkOut) => {
   // Validate input
   if (!checkIn || !checkOut) {
     throw new Error("Check-in and Check-out dates are required.");
   }
 
+  const API_BASE = '/api';
   try {
     const res = await fetch(`${API_BASE}/public/availability?checkIn=${checkIn}&checkOut=${checkOut}`, { cache: 'no-store' });
     if (!res.ok) {
@@ -65,6 +64,7 @@ const saveBookings = (bookings) => {
 };
 
 export const createBooking = async (bookingData) => {
+  const API_BASE = '/api';
   try {
     // 1. Fetch available room types and channels
     const [rtRes, chRes] = await Promise.all([
@@ -153,7 +153,7 @@ export const updateBookingStatus = async (bookingId, newStatus) => {
 
 export const fetchBookingStatus = async (bookingId, phone) => {
   try {
-    const res = await fetch(`${API_BASE}/public/bookings/status?id=${bookingId}&phone=${encodeURIComponent(phone)}`);
+    const res = await fetch(`/api/public/bookings/status?id=${bookingId}&phone=${encodeURIComponent(phone)}`);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || 'Failed to fetch booking details.');
@@ -166,6 +166,7 @@ export const fetchBookingStatus = async (bookingId, phone) => {
 };
 
 export const fetchAllPromotions = async () => {
+  const API_BASE = '/api';
   try {
     const res = await fetch(`${API_BASE}/public/promotions?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) {
@@ -179,6 +180,7 @@ export const fetchAllPromotions = async () => {
 };
 
 export const validatePromoCode = async (code, checkIn, checkOut) => {
+  const API_BASE = '/api';
   try {
     const res = await fetch(`${API_BASE}/public/promotions/validate-code`, {
       method: 'POST',
@@ -199,6 +201,7 @@ export const validatePromoCode = async (code, checkIn, checkOut) => {
 // --- SITE MANAGER API ---
 
 export const fetchSiteContent = async (section) => {
+  const API_BASE = '/api';
   try {
     const res = await fetch(`${API_BASE}/public/site-manager/content/${section}?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed to fetch content for ${section}`);
@@ -210,6 +213,7 @@ export const fetchSiteContent = async (section) => {
 };
 
 export const fetchSiteGallery = async (sliderOnly = false) => {
+  const API_BASE = '/api';
   try {
     const url = sliderOnly ? `${API_BASE}/public/site/gallery?slider=1&t=${Date.now()}` : `${API_BASE}/public/site/gallery?t=${Date.now()}`;
     const res = await fetch(url, { cache: 'no-store' });
@@ -222,6 +226,7 @@ export const fetchSiteGallery = async (sliderOnly = false) => {
 };
 
 export const fetchRoomTypes = async () => {
+  const API_BASE = '/api';
   try {
     const res = await fetch(`${API_BASE}/public/room-types?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error('Failed to fetch room types');
@@ -234,7 +239,7 @@ export const fetchRoomTypes = async () => {
 
 export const sendOtp = async (phone) => {
   try {
-    const res = await fetch(`${API_BASE}/public/otp/send`, {
+    const res = await fetch('/api/public/otp/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
@@ -252,7 +257,7 @@ export const sendOtp = async (phone) => {
 
 export const verifyOtp = async (phone, otp) => {
   try {
-    const res = await fetch(`${API_BASE}/public/otp/verify`, {
+    const res = await fetch('/api/public/otp/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, otp })
